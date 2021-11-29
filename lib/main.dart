@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget{
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Welcome to Flutter 4'),
+          title: const Text('Bienvenue dans Flutter'),
         ),
         body:ListView(
             children: <Widget>[
@@ -34,8 +35,6 @@ class MyApp extends StatelessWidget{
 
 }
 
-
-
 class MyArApp extends StatefulWidget {
   @override
   _MyArAppState createState() => _MyArAppState();
@@ -43,6 +42,8 @@ class MyArApp extends StatefulWidget {
 
 class _MyArAppState extends State<MyArApp> {
   ArCoreController arCoreController;
+
+  int swichObject=0;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +72,7 @@ class _MyArAppState extends State<MyArApp> {
         color: Colors.blue);
     final sphere = ArCoreSphere(
       materials: [material],
-      radius: 0.1,
+      radius: 0.3,
     );
     final node = ArCoreNode(
       shape: sphere,
@@ -81,9 +82,36 @@ class _MyArAppState extends State<MyArApp> {
     
   }
 
+  Future _addCube(ArCoreHitTestResult hit) async {
+
+    final material = ArCoreMaterial(
+        color: Colors.red);
+    final sphere = ArCoreCube(
+      materials: [material],
+      size: vector.Vector3(0.5, 0.5, 0.5),
+    );
+    final node = ArCoreNode(
+      shape: sphere,
+      position: hit.pose.translation ,
+    );
+    arCoreController.addArCoreNode(node);
+
+  }
+
   void _handleOnPlaneTap(List<ArCoreHitTestResult> hits) {
     final hit = hits.first;
-    _addSphere(hit);
+
+    if(swichObject==0) {
+      _addSphere(hit);
+    }else if(swichObject==1){
+      _addCube(hit);
+    }
+
+    swichObject++;
+    if(swichObject>1){
+      swichObject=0;
+    }
+
   }
 
   void onTapHandler(String name) {
